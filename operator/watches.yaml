@@ -1,0 +1,5 @@
+---
+- version: v1alpha1
+  group: ailibrary.opendatahub.io
+  kind: AILibrary
+  role: /opt/ansible/roles/ailibrary

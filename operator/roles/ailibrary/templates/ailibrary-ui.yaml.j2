@@ -1,0 +1,69 @@
+apiVersion: v1
+kind: DeploymentConfig
+metadata:
+  name: ai-library-ui
+  namespace: {{ meta.namespace }}
+  labels:
+    app: ai-library-ui
+    name: ai-library-ui  
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    app: ai-library-ui
+  strategy:
+    rollingParams:
+      timeoutSeconds: 3600
+    type: Rolling
+  template:
+    metadata:
+      labels:
+        app: ai-library-ui
+    spec:
+      containers:
+        - image: {{ item.image }}
+          imagePullPolicy: Always
+          name: ai-library-ui
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          env:
+            - name: REGRESSOR_URL
+              value: {{ item.endpoints['regression'] | default('')}}
+            - name: FLAKE_URL
+              value: {{ item.endpoints['flakes'] | default('')}}
+    triggers:
+      - type: ConfigChange
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-library-ui
+  namespace: {{ meta.namespace }}
+  labels:
+    app: ai-library-ui 
+spec:
+  ports:
+    - name: http
+      port: 8080
+  selector:
+    app: ai-library-ui
+---
+apiVersion: v1
+kind: Route
+metadata:
+  name: ui
+  namespace: {{ meta.namespace }}
+  labels:
+    app: ai-library-ui
+spec:
+  port:
+    targetPort: 8080
+  to:
+    kind: Service
+    name: ai-library-ui
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None

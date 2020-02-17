@@ -1,0 +1,63 @@
+apiVersion: machinelearning.seldon.io/v1alpha2
+kind: SeldonDeployment
+metadata:
+  labels:
+    app: ai-library
+    deployer: opendatahub-operator
+    model: {{ item.modelname }}
+  name: {{ item.modelname }}
+  namespace: {{ meta.namespace }}
+spec:
+  annotations:
+    deployment_version: "0.1"
+    project_name: {{ meta.namespace }}
+  name: {{ item.modelname }}
+  predictors:
+    - annotations:
+        predictor_version: "0.1"
+      componentSpecs:
+        - spec:
+            containers:
+              - image: {{ item.image }}
+                imagePullPolicy: Always
+                name: {{ item.containername }}
+                resources:
+                  requests:
+                    memory: {{ item.memory }}
+                    cpu: {{ item.cpu }}
+                env:
+                  - name: S3ENDPOINTURL
+                    value: "{{ s3_endpoint }}"
+                  - name: S3ACCESSKEY
+                    value: "{{ s3_access }}"
+                  - name: S3SECRETKEY
+                    value: "{{ s3_secret }}"
+                  - name: S3OBJECTSTORELOCATION
+                    value: "{{ s3_bucket }}"
+                  - name: S3REGION
+                    value: "{{ s3_region }}"
+            terminationGracePeriodSeconds: 20
+      graph:
+        endpoint:
+          type: REST
+        name: {{ item.containername }}
+        type: MODEL
+      name: predictor
+      replicas: 1
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ item.modelname }}
+  namespace: "{{ meta.namespace }}"
+  labels:
+    app: ai-library
+spec:
+  port:
+    targetPort: http
+  to:
+    kind: Service
+    name: {{ item.modelname }}-{{ item.modelname }}
+  tls:
+    insecureEdgeTerminationPolicy: Allow
+    termination: edge

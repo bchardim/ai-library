@@ -1,0 +1,19 @@
+- name: Add S3ENDPOINTURL environment variable
+  lineinfile:
+    path: "{{ path }}/{{ model }}/.s2i/environment"
+    line: "S3ENDPOINTURL={{ s3endpointurl }}"
+
+- name: Add S3OBJECTSTORELOCATION environment variable
+  lineinfile:
+    path: "{{ path }}/{{ model }}/.s2i/environment"
+    line: "S3OBJECTSTORELOCATION={{ s3objectstorelocation }}"
+
+- name: Add S3ACCESSKEY environment variable
+  lineinfile:
+    path: "{{ path }}/{{ model }}/.s2i/environment"
+    line: "S3ACCESSKEY={{ s3accesskey }}"
+
+- name: Add S3SECRETKEY environment variable
+  lineinfile:
+    path: "{{ path }}/{{ model }}/.s2i/environment"
+    line: "S3SECRETKEY={{ s3secretkey }}"

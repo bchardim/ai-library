@@ -1,0 +1,42 @@
+build_correlation_analysis:
+  stage: build_images
+  variables:
+    IMAGETAG: "$CI_REGISTRY/$CI_PROJECT_PATH/ai-library-correlation-analysis:${CI_COMMIT_SHORT_SHA}"
+  only:
+    changes:
+      - Makefile
+      - .gitlab-ci.yml
+      - correlation_analysis/**/*
+    refs:
+      - master
+      - merge_requests
+      - tags
+      - branches
+  services:
+    - docker:dind
+  script:
+    - echo `env | sort`
+    - cd correlation_analysis
+    - make build
+    - docker push $IMAGETAG
+
+test_correlation_analysis:
+  stage: test_models
+  variables:
+    IMAGETAG: "$CI_REGISTRY/$CI_PROJECT_PATH/ai-library-correlation-analysis:${CI_COMMIT_SHORT_SHA}"
+  only:
+    changes:
+      - Makefile
+      - .gitlab-ci.yml
+      - correlation_analysis/**/*
+    refs:
+      - master
+      - merge_requests
+      - tags
+      - branches
+  script:
+    - PRED_CID=$(docker run -d -p 5000:5000 ${IMAGETAG})
+    - sleep 30s
+    - echo `docker inspect $PRED_CID` | jq .[0].State
+    - OUTPUT=`curl http://docker:5000/predict -d '{"strData":"x=[1,2,3,4,5,6,7,8,9,10]:y=[2,4,6,6,8,8,4,19,20,20]"}' -H "Content-Type:application/json"`
+    - echo $OUTPUT | python -m json.tool

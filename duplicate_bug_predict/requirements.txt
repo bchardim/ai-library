@@ -1,0 +1,6 @@
+argparse
+sklearn
+boto3
+nltk
+gensim
+seldon-core

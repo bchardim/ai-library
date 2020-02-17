@@ -1,0 +1,16 @@
+- name: Verify config parameters
+  fail:
+    msg: "namespace variable must be set to the namespace where models needs to be deployed"
+  when: namespace is undefined
+
+- name: Clean existing workspace
+  file:
+    state: absent
+    path: "{{ workspace }}"
+
+- name: Clone repo in to workspace
+  git:
+    repo: "{{ ailibrary_repo }}"
+    dest: "{{ workspace }}"
+    update: no
+

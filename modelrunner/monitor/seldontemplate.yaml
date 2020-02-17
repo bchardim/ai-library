@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: Template
+objects:
+  - apiVersion: machinelearning.seldon.io/v1alpha2
+    kind: SeldonDeployment
+    metadata:
+      labels:
+        app: seldon
+      name: ${NAME}
+      namespace: ${NAMESPACE}
+    spec:
+      annotations:
+        deployment_version: "0.1"
+        project_name: noadminseldon
+      name: ${MODELPODNAME}
+      oauth_key: ${MODELKEY}
+      oauth_secret: ${MODELSECRET}
+      predictors:
+        - annotations:
+            predictor_version: "0.1"
+          componentSpecs:
+            - spec:
+                containers:
+                  - image: ${MODEL_IMAGE}
+                    imagePullPolicy: Always
+                    name: ${CONTAINER_NAME}
+                    resources:
+                      requests:
+                        memory: ${MEMORY}
+                terminationGracePeriodSeconds: 20
+          graph:
+            endpoint:
+              type: ${ENDPOINT_TYPE}
+            name: ${CONTAINER_NAME}
+            type: ${GRAPH_TYPE}
+          name: predictor
+          replicas: 1
+parameters:
+  - name: NAME
+    required: true
+  - name: NAMESPACE
+    required: true
+  - name: MODELPODNAME
+    required: true
+  - name: MODELKEY
+    required: true
+  - name: MODELSECRET
+    required: true
+  - name: MODEL_IMAGE
+    required: true
+  - name: CONTAINER_NAME
+    required: true
+  - name: MEMORY
+    required: true
+  - name: ENDPOINT_TYPE
+    value: "REST"
+  - name: GRAPH_TYPE
+    value: "MODEL"

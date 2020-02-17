@@ -1,0 +1,35 @@
+- name: "Move supporting libraries in to each model directory"
+  include: copy.yml path={{ workspace }} model={{ model_name }}
+
+- name: "Add S3 environment variables under .s2i/environment for each model"
+  include: update_s2i_environ.yml path={{ workspace }} model={{ model_name }} s3endpointurl={{ s3endpointUrl }} s3objectstorelocation={{ s3objectStoreLocation }} s3accesskey={{ s3accessKey }} s3secretkey={{ s3secretKey }} 
+
+- name: "Create deployment.json for each model"
+  shell: "cp {{ workspace }}/deployment.json {{ workspace }}/{{ model_name }}/deployment.json"
+
+- name: "Update deployment.json parameters"
+  include: update_deployment.yml name={{deployment_name}} path={{ workspace }} model={{ model_name }} key={{ deployment_key }} secret={{ deployment_secret }} repo={{ container_repo }} account={{ container_account}} memory={{ deployment_memory }} cpu={{deployment_cpu}}
+
+- name: "clean existing deployments"
+  shell: "{{ oc }} delete -n {{ namespace }} -f {{ workspace }}/{{ model_name }}/deployment.json"
+  ignore_errors: yes
+
+- name: "clean existing routes"
+  shell: "{{ oc }} delete route {{ deployment_name }}"
+  ignore_errors: yes
+
+- name: "Build image using seldon base image and push to repo"
+  include: build_image.yml path={{ workspace }} model={{ model_name }}
+  tags: build_image
+
+- name: "switch to configured namespace"
+  command: "{{ oc }} project {{ namespace }}"
+
+- name: "create new deployments"
+  shell: "{{ oc }} create -n {{ namespace }} -f {{ workspace }}/{{ model_name }}/deployment.json"
+
+- name: "Wait for model to be deployed"
+  pause:
+    seconds: 60
+
+- include: create_route.yml mname={{ deployment_name }}

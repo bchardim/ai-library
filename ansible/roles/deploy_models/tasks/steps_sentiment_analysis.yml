@@ -1,0 +1,19 @@
+- name: "clean existing deployments"
+  shell: "{{ oc }} delete -n {{ namespace }} -f {{ workspace }}/{{ model_name }}/deployment.json"
+  ignore_errors: yes
+
+- name: "clean existing routes"
+  shell: "{{ oc }} delete route {{ deployment_name }}"
+  ignore_errors: yes
+
+- name: "switch to configured namespace"
+  command: "{{ oc }} project {{ namespace }}"
+
+- name: "create new deployments"
+  shell: "{{ oc }} create -n {{ namespace }} -f {{ workspace }}/{{ model_name }}/deployment.json"
+
+- name: "Wait for model to be deployed"
+  pause:
+    seconds: 60
+
+- include: create_route.yml mname={{ deployment_name }}

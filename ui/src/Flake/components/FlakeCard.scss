@@ -1,0 +1,73 @@
+.flake-wizard {
+  .wizard-pf-contents {
+    height: calc(100% - 72px);
+  }
+
+  .wizard-pane-title {
+    margin-top: 0;
+    margin-bottom: 2rem;
+  }
+
+  .flake-wizard-contents {
+    padding-bottom: 5rem;
+
+    .flake-info-section {
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+    }
+
+    &.flake-demo {
+      .prediction-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 200px;
+      }
+
+      .prediction-text {
+        font-size: 4rem;
+      }
+
+      .prediction-text .no-prediction {
+        color: #bbbbbb;
+        font-size: 3rem;
+      }
+
+      .flake-probability.flake-false .fa-bug {
+        color: #ec7a08;
+      }
+
+      .flake-probability.flake-true .fa-snowflake {
+        color: #bee1f4;
+      }
+
+      .flake-probability .fa-exclamation-triangle {
+        color: #a30000;
+      }
+
+      .flake-results-table-grid {
+        margin-bottom: 3rem;
+      }
+
+      .flake-presets-results {
+        margin-top: 3rem;
+
+        .flake-probability {
+          margin-left: 2rem;
+        }
+
+        .sample-request-col .alert-callout {
+          margin-top: 3rem;
+        }
+      }
+
+      .flake-results-custom-tab {
+        margin-top: 3rem;
+      }
+
+      .api-request-example {
+        margin-top: 2rem;
+      }
+    }
+  }
+}

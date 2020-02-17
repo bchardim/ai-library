@@ -1,0 +1,2 @@
+- name: "create route for the model"
+  shell: "{{ oc }} expose service {{mname}}-m-{{mname}} --name={{mname}} --port=http"

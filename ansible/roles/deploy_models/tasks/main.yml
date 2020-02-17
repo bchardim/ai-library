@@ -1,0 +1,47 @@
+---
+- name: Prepare workspace to create deployment yaml
+  include: prep_workspace.yml
+  tags: prep_workspace
+
+- name: Deploy correlation analysis model
+  include: steps.yml model_name="correlation_analysis" deployment_name={{correlation_name}} deployment_key={{correlation_name}}_key deployment_secret={{correlation_name}}_secret deployment_memory={{correlation_memory}} deployment_cpu={{correlation_cpu}}
+  tags: correlation_analysis
+
+- name: Deploy association rule learning
+  include: steps.yml model_name="association_rule_learning" deployment_name={{associationrule_name}} deployment_key={{associationrule_name}}_key deployment_secret={{associationrule_name}}_secret deployment_memory={{associationrule_memory}} deployment_cpu={{associationrule_cpu}}
+  tags: association_rule_learning
+
+- name: Deploy Flake analysis prediction
+  include: steps.yml model_name="flakes_predict" deployment_name={{flakespredict_name}} deployment_key={{flakespredict_name}}_key deployment_secret={{flakespredict_name}}_secret deployment_memory={{flakespredict_memory}} deployment_cpu={{flakespredict_cpu}} 
+  tags: flakes_predict
+
+- name: Deploy Linear Regression Training
+  include: steps.yml model_name="regression_train" deployment_name={{regressiontrain_name}} deployment_key={{regressiontrain_name}}_key deployment_secret={{regressiontrain_name}}_secret deployment_memory={{regressiontrain_memory}} deployment_cpu={{regressiontrain_cpu}}
+  tags: regression_train
+
+- name: Deploy matrix factorization
+  include: steps.yml model_name="matrix_factorization" deployment_name={{matrixfactor_name}} deployment_key={{matrixfactor_name}}_key deployment_secret={{matrixfactor_name}}_secret deployment_memory={{matrixfactor_memory}} deployment_cpu={{matrixfactor_cpu}}
+  tags: matrix_factorization
+
+- name: Deploy Fraud Detection
+  include: steps.yml model_name="fraud_detection" deployment_name={{detectfraud_name}} deployment_key={{detectfraud_name}}_key deployment_secret={{detectfraud_name}}_secret deployment_memory={{detectfraud_memory}} deployment_cpu={{detectfraud_cpu}}
+  tags: fraud_detection
+
+- name: Deploy Fruit Class
+  include: steps.yml model_name="fruitcl" deployment_name={{fruitcl_name}} deployment_key={{fruitcl_name}}_key deployment_secret={{fruitcl_name}}_secret deployment_memory={{fruitcl_memory}} deployment_cpu={{fruitcl_cpu}}
+  tags: fruitcl
+
+- name: Deploy Topic Model
+  include: steps.yml model_name="topic_model" deployment_name={{topicmodel_name}} deployment_key={{topicmodel_name}}_key deployment_secret={{topicmodel_name}}_secret deployment_memory={{topicmodel_memory}} deployment_cpu={{topicmodel_cpu}}
+  tags: topic_model
+
+- name: Deploy Regressor Prediction
+  include: steps.yml model_name="regression_predict" deployment_name={{regressionpredict_name}} deployment_key={{regressionpredict_name}}_key deployment_secret={{regressionpredict_name}}_secret deployment_memory={{regressionpredict_memory}} deployment_cpu={{regressionpredict_cpu}}
+  tags: regression_predict
+
+- name: Deploy Sentiment Analysis
+  include: steps_sentiment_analysis.yml model_name="sentiment_analysis" deployment_name={{sentimentanalysis_name}} deployment_key={{sentimentanalysis_name}}_key deployment_secret={{sentimentanalysis_name}}_secret
+  tags: sentiment_analysis
+
+- include: get_routes.yml
+  tags: create_route

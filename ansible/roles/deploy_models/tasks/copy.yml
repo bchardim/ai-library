@@ -1,0 +1,11 @@
+- name: "Copy supporting libraries to each model"
+  shell: "cp {{ item }} {{ path }}/{{ model }}/"
+  with_items:
+   - "{{path}}/storage/s3.py"
+   - "{{path}}/accuracy_measures/measures.py"
+
+- name: "Copy s2i files to each model"
+  shell: "cp -r {{ item }} {{ path }}/{{ model }}/.s2i"
+  with_items:
+    - "{{path}}/s2i/bin"
+  when: model != 'duplicate_bug_train' and model != 'flakes_train'

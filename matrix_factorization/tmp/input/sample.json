@@ -1,0 +1,6 @@
+{
+  "ecosystem": "maven",
+  "package_list": [
+    "io.vertx:vertx-core"
+  ]
+}

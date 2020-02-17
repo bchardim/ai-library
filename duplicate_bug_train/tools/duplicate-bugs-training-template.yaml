@@ -1,0 +1,60 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: dupbugtrain
+spec:
+  entrypoint: train-duplicate-bugs
+  volumes:
+    - name: workdir
+      emptyDir: {}
+  templates:
+    - name: traindupebugs
+      container:
+        env:
+          - name: APP_FILE
+            value: duplicate_train.py
+          - name: INPUT_DIR
+            value: /opt/app-root/src/data
+          - name: OUTPUT_DIR
+            value: /mnt/output
+        image: quay.io/croberts/argo-duplicate-bugs-train
+        imagePullPolicy: Always
+        volumeMounts:
+          - name: workdir
+            mountPath: /mnt/output
+      inputs:
+        artifacts:
+          - name: dupebugtraindata
+            path: /opt/app-root/src/data
+            mode: 0755
+            s3:
+              key: <location of tar.gz data>
+              endpoint: <your s3 endpoint>
+              bucket: <your s3 bucket>
+              accessKeySecret:
+                name: <your s3 credentials secret>
+                key: accesskey
+              secretKeySecret:
+                name: <your s3 credentials secret>
+                key: secretkey
+      outputs:
+        artifacts:
+          - name: dupebugsmodel
+            path: /mnt/output
+            archive:
+              none: {}
+            s3:
+              key: <location of result (model) on S3 storage...possibly include {{workflow.uid}} or {{workflow.creationTiemstamp.<X>}} to track results>
+              endpoint: <your s3 endpoint>
+              bucket: <your s3 bucket>
+              accessKeySecret:
+                name: my-s3-credentials
+                key: accesskey
+              secretKeySecret:
+                name: my-s3-credentials
+                key: secretkey
+    - name: train-duplicate-bugs
+      dag:
+        tasks:
+          - name: Dupe-Bugs-Train
+            template: traindupebugs

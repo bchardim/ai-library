@@ -1,0 +1,40 @@
+#!/bin/bash
+
+write_api_location () {
+  local LOCATION
+  if [ -n "${3}" ]; then
+    LOCATION=$(echo '\n'\
+    "       location ${2} {\n"\
+    "           proxy_pass ${3};\\n"\
+    '           proxy_http_version 1.1;\n'\
+    '           proxy_set_header Upgrade $http_upgrade;\n'\
+    "           proxy_set_header Connection 'upgrade';\n"\
+    '           proxy_set_header Host $host;\n'\
+    '           proxy_cache_bypass $http_upgrade;\n'\
+    '       }\n')
+  fi
+  sed -i "s|${1}|${LOCATION}|" /tmp/nginx.conf
+}
+
+source /opt/app-root/etc/generate_container_user
+
+set -e
+
+source ${NGINX_CONTAINER_SCRIPTS_PATH}/common.sh
+
+process_extending_files ${NGINX_APP_ROOT}/src/nginx-start ${NGINX_CONTAINER_SCRIPTS_PATH}/nginx-start
+
+if [ ! -v NGINX_LOG_TO_VOLUME -a -v NGINX_LOG_PATH ]; then
+    /bin/ln -s /dev/stdout ${NGINX_LOG_PATH}/access.log
+    /bin/ln -s /dev/stderr ${NGINX_LOG_PATH}/error.log
+fi
+
+# edit nginx.conf to use API URLs
+# editing in /tmp because sed doesn't have permission to the $NGINX_CONF_PATH for it's temporary file
+cp ${NGINX_CONF_PATH} /tmp/nginx.conf
+write_api_location '<regressor_location/>' '/seldon-models/regressor/' "${REGRESSOR_URL}"
+write_api_location '<flake_location/>' '/seldon-models/flake/'  "${FLAKE_URL}"
+cp /tmp/nginx.conf ${NGINX_CONF_PATH}
+# end - edit
+
+exec nginx -g "daemon off;"

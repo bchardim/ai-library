@@ -1,0 +1,1 @@
+-e git+https://github.com/ManageIQ/aiops-rad.git#egg=rad

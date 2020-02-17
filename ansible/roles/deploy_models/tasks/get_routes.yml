@@ -1,0 +1,5 @@
+- name: "Retrieve routes for deployed models"
+  shell: "{{ oc }} get routes"
+  register: result
+  
+- local_action: copy content={{ result.stdout }} dest="{{ workspace }}/model.routes"

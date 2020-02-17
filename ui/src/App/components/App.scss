@@ -1,0 +1,52 @@
+.app {
+  .navbar {
+    height: 60px;
+    background-color: black;
+  }
+
+  .navbar-brand-name {
+    height: 36px;
+  }
+}
+
+.spinner.spinner-xl {
+  height: 60px;
+  width: 60px;
+  border-width: 8px;
+}
+
+.clickable-empty-link {
+  cursor: pointer;
+}
+
+// Wide Wizards
+// Set at the top level because we don't control the class names of the modal for wizards.
+.modal-lg.wizard-pf.modal-dialog {
+  @media (min-width: 1200px) {
+    width: 90%;
+    max-width: 1200px;
+  }
+
+  .service-wizard {
+    .modal-title {
+      font-weight: 600;
+      line-height: 24px;
+    }
+
+    .service-wizard-title-icon {
+      font-size: 24px;
+      margin-right: 10px;
+      color: #1686CA;
+    }
+  }
+}
+
+.alert.alert-info.alert-callout {
+  border-color: #1686CA;
+  color: #1686CA;
+  background-color: rgba(22, 134, 202, 0.1);
+
+  .pficon-info {
+    color: #1686CA;
+  }
+}

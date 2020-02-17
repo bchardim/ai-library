@@ -1,0 +1,50 @@
+build_flakes_predict:
+  stage: build_images
+  variables:
+    IMAGETAG: "$CI_REGISTRY/$CI_PROJECT_PATH/ai-library-flakes-predict:${CI_COMMIT_SHORT_SHA}"
+  only:
+    changes:
+      - Makefile
+      - .gitlab-ci.yml
+      - flakes_predict/**/*
+      - storage/**/*
+    refs:
+      - master
+      - merge_requests
+      - tags
+      - branches
+  services:
+    - docker:dind
+  script:
+    - echo `env | sort`
+    - cd flakes_predict
+    - make build
+    - docker push $IMAGETAG
+
+test_flakes_predict:
+  stage: test_models
+  variables:
+    IMAGETAG: "$CI_REGISTRY/$CI_PROJECT_PATH/ai-library-flakes-predict:${CI_COMMIT_SHORT_SHA}"
+  only:
+    changes:
+      - Makefile
+      - .gitlab-ci.yml
+      - flakes_predict/**/*
+      - storage/**/*
+    refs:
+      - master
+      - merge_requests
+      - tags
+      - branches
+  script:
+    - mc config host add minio ${MINIO_HOST} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
+    - mc mb minio/testdata
+    - git clone https://gitlab.com/opendatahub/sample-models.git
+    - cd sample-models
+    - mc cp ./flake_analysis/models/testflakes.model minio/${TESTBUCKET}/flake_analysis/models/
+    - MINIO_IP=$(cat /etc/hosts | awk '{if ($2 == "minio") print $1;}')
+    - PRED_CID=$(docker run -d -p 5000:5000 --add-host="minio:$MINIO_IP" -e S3ENDPOINTURL=${MINIO_HOST} -e S3OBJECTSTORELOCATION=${TESTBUCKET} -e S3ACCESSKEY=${MINIO_ACCESS_KEY} -e S3SECRETKEY=${MINIO_SECRET_KEY} ${IMAGETAG})
+    - sleep 30s
+    - echo `docker inspect $PRED_CID` | jq .[0].State
+    - OUTPUT=`curl http://docker:5000/predict -d '{"strData":"model=flake_analysis/models/testflakes.model,data=testBasic (check_journal.TestJournal)\n\n[0905/212816.673168:ERROR:gpu_process_transport_factory.cc(1017)] Lost UI shared context.\n\n"}' -H "Content-Type:application/json"`
+    - echo $OUTPUT

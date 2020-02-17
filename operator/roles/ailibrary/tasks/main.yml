@@ -1,0 +1,56 @@
+---
+- debug:
+    msg:  "{{ _ailibrary_opendatahub_io_ailibrary.spec }}"
+
+  # Create a reference to the .spec of the AI Library Custom Resource
+  # This fact will allow us to reference all of the .spec properties without having
+  # to account for the ansible converting the names from:
+  #   camelCase to snake_case
+  #   snake_case to snake__case
+  #   s3camelCase to s_3_camel_case
+  # See https://github.com/operator-framework/operator-sdk/blob/master/doc/ansible/dev/developer_guide.md#extra-vars-sent-to-ansible
+  # Once set all roles can reference the CRD .spec using {{ ailibrary_spec['some-spec-property']['someVar']
+- set_fact:
+    ailibrary_spec: "{{ _ailibrary_opendatahub_io_ailibrary.spec }}"
+
+- name: deploy AI-Library models that are enabled
+  k8s:
+    state: present
+    definition: "{{ lookup('template', item.template | default('model-deploy.yaml.j2') )}}"
+  when: item.enabled == True
+  with_items: "{{ ailibrary_spec['models'] }}"
+
+- name: undeploy AI-Library that are disabled
+  k8s:
+    state: absent
+    definition: "{{ lookup('template', item.template | default('model-deploy.yaml.j2') )}}"
+  when: item.enabled == False
+  with_items: "{{ ailibrary_spec['models'] }}"  
+
+- name: deploy AI-Library User Interface when enabled
+  k8s:
+    state: present
+    definition: "{{ lookup('template', item.template | default('ailibrary-ui.yaml.j2') )}}"
+  when: item.enabled == True
+  with_items: "{{ ailibrary_spec['user-interface'] }}"
+
+- name: undeploy AI-Library User Interface when disabled
+  k8s:
+    state: absent
+    definition: "{{ lookup('template', item.template | default('ailibrary-ui.yaml.j2') )}}"
+  when: item.enabled == False
+  with_items: "{{ ailibrary_spec['user-interface'] }}"
+
+- name: Deploy AI-Library sample models and data copy job
+  k8s:
+    state: present
+    definition: "{{ lookup('template', item.template | default('datacopy.yaml.j2') )}}"
+  when: item.enabled == True
+  with_items: "{{ ailibrary_spec['sample-data'] }}"
+
+- name: Undeploy AI-Library sample models and data copy job
+  k8s:
+    state: absent
+    definition: "{{ lookup('template', item.template | default('datacopy.yaml.j2') )}}"
+  when: item.enabled == False
+  with_items: "{{ ailibrary_spec['sample-data'] }}"  

@@ -1,0 +1,72 @@
+.service-tile.catalog-tile-pf {
+  padding: 0;
+  position: relative;
+  color: #9c9c9c;
+  width: 250px;
+  height: 240px;
+
+  .catalog-tile-pf-body .catalog-tile-pf-description {
+    color: #72767b;
+    &::after {
+      background: none;
+    }
+  }
+
+  &.featured {
+    color: #363636;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  &.coming-soon {
+    color: #8b8d8f;
+
+    &:hover {
+      box-shadow: none
+    }
+
+    .service-tile-pf-icon-container {
+      background-color: #fafafa;
+      border: solid 1px #e6e6e6;
+      color: #8b8d8f;
+    }
+  }
+
+
+  .service-tile-pf-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 45px;
+    width: 45px;
+    font-size: 25px;
+    background-color: #DDF2FE;
+    border: solid 1px #BDE0F4;
+    color: #1686CA;
+  }
+
+  .catalog-tile-pf-title {
+    font-size: 1.6rem;
+  }
+
+  .catalog-tile-pf-contents {
+    margin: 15px;
+  }
+
+  .catalog-tile-pf-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 1.5rem;
+    color: white;
+    background-color: #9B9B9B;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    height: 50px;
+    line-height: 50px;
+  }
+}

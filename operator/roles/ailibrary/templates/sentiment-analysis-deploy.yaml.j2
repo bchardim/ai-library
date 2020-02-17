@@ -1,0 +1,67 @@
+apiVersion: machinelearning.seldon.io/v1alpha2
+kind: SeldonDeployment
+metadata:
+  labels:
+    app: ai-library
+    deployer: opendatahub-operator
+    model: {{ item.modelname }}
+  name: {{ item.modelname }}
+  namespace: {{ meta.namespace }}
+spec:
+  annotations:
+    deployment_version: "0.1"
+    project_name: {{ meta.namespace }}
+  name: {{ item.modelname }}
+  predictors:
+  - componentSpecs:
+    - spec:
+        containers:
+        - image: {{ item.proxyimage }}
+          name: {{ item.containername }}
+        - args:
+          - "/usr/bin/tensorflow_model_server"
+          - "--rest_api_port=8080"
+          - "--model_name=model-en"
+          - "--model_base_path=/models/model_en/"
+          image: {{ item.image }}
+          name: {{ item.model }}
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources:
+            requests:
+              cpu: {{ item.cpu }}
+              memory: {{ item.memory }} 
+        terminationGracePeriodSeconds: 20
+    graph:
+      name: {{ item.containername }}
+      endpoint:
+        type: REST
+      type: MODEL
+      children: []
+      parameters:
+      - name: rest_endpoint
+        type: STRING
+        value: http://localhost:8080
+      - name: model_name
+        type: STRING
+        value: {{ item.model }}
+    name: {{ item.modelname }}-serving
+    replicas: 1
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ item.modelname }}
+  namespace: "{{ meta.namespace }}"
+  labels:
+    app: ai-library
+spec:
+  port:
+    targetPort: http
+  to:
+    kind: Service
+    name: {{ item.modelname }}-{{ item.modelname }}
+  tls:
+    insecureEdgeTerminationPolicy: Allow
+    termination: edge

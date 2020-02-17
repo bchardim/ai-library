@@ -1,0 +1,54 @@
+{
+    "apiVersion": "machinelearning.seldon.io/v1alpha2",
+    "kind": "SeldonDeployment",
+    "metadata": {
+        "labels": {
+            "app": "seldon"
+        },
+        "name": "METADATA_NAME"
+    },
+    "spec": {
+        "annotations": {
+            "project_name": "PROJECT_NAME",
+            "deployment_version": "0.1"
+        },
+        "name": "SPEC_NAME",
+        "oauth_key": "OAUTH_KEY",
+        "oauth_secret": "OAUTH_SECRET",
+        "predictors": [
+            {
+                "componentSpecs": [{
+                    "spec": {
+                        "containers": [
+                            {
+                                "image": "DOCKER_IMAGE",
+                                "imagePullPolicy": "Always",
+                                "name": "CONTAINER_NAME",
+                                "resources": {
+                                    "requests": {
+                                        "memory": "MEMORY",
+                                        "cpu": "CPU"
+                                    }
+                                }
+                            }
+                        ],
+                        "terminationGracePeriodSeconds": 20
+                    }
+                }],
+                "graph": {
+                    "children": [],
+                    "name": "GRAPH_NAME",
+                    "endpoint": {
+                        "type" : "REST"
+                    },
+                    "type": "MODEL"
+                },
+                "name": "predictor",
+                "replicas": 1,
+                "annotations": {
+                "predictor_version" : "0.1"
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ailibrary-sampledata
+  namespace: {{ meta.namespace }}
+spec:
+  parallelism: 1
+  completions: 1
+  activeDeadlineSeconds: 18000
+  backoffLimit: 6
+  template:
+    metadata:
+      name: ailibrary-sampledata
+    spec:
+      containers:
+      - name: ailibrary-sampledata
+        image: {{ item.image }}
+        env:
+          - name: S3_ENDPOINT_URL
+            value: {{ s3_endpoint }}
+          - name: S3_ACCESS_KEY
+            value: {{ s3_access }}
+          - name: S3_SECRET_KEY
+            value: {{ s3_secret }}
+          - name: S3_BUCKET
+            value: {{ s3_bucket }}
+          - name: S3_REGION
+            value: {{ s3_region }}
+          - name: S3_PREFIX
+            value: {{ item.s3_destination_prefix | default('') }}
+      restartPolicy: OnFailure

@@ -1,0 +1,71 @@
+- name: update metadata
+  replace:
+    path: "{{ path }}/{{ model }}/deployment.json"
+    regexp: 'METADATA_NAME'
+    replace: "m-{{ name }}"
+    backup: no
+
+- name: update project name
+  replace:
+    path: "{{ path }}/{{ model }}/deployment.json"
+    regexp: 'PROJECT_NAME'
+    replace: "p-{{ name }}"
+    backup: no
+
+- name: update spec
+  replace:
+    path: "{{ path }}/{{ model }}/deployment.json"
+    regexp: 'SPEC_NAME'
+    replace: "{{ name }}"
+    backup: no
+
+- name: update auth key
+  replace:
+    path: "{{ path }}/{{ model }}/deployment.json"
+    regexp: 'OAUTH_KEY'
+    replace: "{{ key }}"
+    backup: no
+
+- name: update auth secret
+  replace:
+    path: "{{ path }}/{{ model }}/deployment.json"
+    regexp: 'OAUTH_SECRET'
+    replace: "{{ secret }}"
+    backup: no
+
+- name: update docker image
+  replace:
+    path: "{{ path }}/{{ model }}/deployment.json"
+    regexp: 'DOCKER_IMAGE'
+    replace: "{{ repo }}/{{ account }}/{{ model }}"
+    backup: no
+
+- name: update container name
+  replace:
+    path: "{{ path }}/{{ model }}/deployment.json"
+    regexp: 'CONTAINER_NAME'
+    replace: "c-{{ name }}"
+    backup: no
+
+- name: update resources/memory
+  replace:
+    path: "{{ path }}/{{ model }}/deployment.json"
+    regexp: 'MEMORY'
+    replace: "{{ memory }}"
+    backup: no
+
+- name: update resources/cpu
+  replace:
+    path: "{{ path }}/{{ model }}/deployment.json"
+    regexp: 'CPU'
+    replace: "{{ cpu }}"
+    backup: no
+
+
+- name: update graph details
+  replace:
+    path: "{{ path }}/{{ model }}/deployment.json"
+    regexp: 'GRAPH_NAME'
+    replace: "c-{{ name }}"
+    backup: no
+

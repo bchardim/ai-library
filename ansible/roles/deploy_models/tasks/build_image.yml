@@ -1,0 +1,8 @@
+- name: "Build image using s2i"
+  shell: "sudo {{ s2i }} build {{ path }}/{{ model }} {{ base_image }} {{ model }} -e UPGRADE_PIP_TO_LATEST=true"
+
+- name: "Tag image"
+  shell: "sudo docker tag {{ model }}:latest {{ container_repo }}/{{ container_account }}/{{ model }}"
+
+- name: "Push image to repo"
+  shell: "sudo docker push {{ container_repo }}/{{ container_account }}/{{ model }}"

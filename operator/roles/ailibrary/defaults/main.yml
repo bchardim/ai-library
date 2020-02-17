@@ -1,0 +1,8 @@
+# These will add your S3 credentials/bucket to your predictor containers, which will allow
+# those containers to access your S3 storage without needing to pass the credentials
+# in on each prediction request.
+s3_access: "{{ ailibrary_spec['s3_access'] | default('') }}"
+s3_secret: "{{ ailibrary_spec['s3_secret'] | default('') }}"
+s3_endpoint: "{{ ailibrary_spec['s3_endpoint'] | default('') }}"
+s3_bucket: "{{ ailibrary_spec['s3_bucket'] | default('') }}"
+s3_region: "{{ ailibrary_spec['s3_region'] | default('') }}"

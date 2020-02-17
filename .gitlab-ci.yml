@@ -1,0 +1,39 @@
+image: docker:stable
+
+services:
+  - docker:stable-dind
+  - name: minio/minio:latest
+    alias: minio
+    command: ["server", "/data"]
+
+variables:
+  MINIO_ACCESS_KEY: "AICOEEXAMPLEACCESSKEY"
+  MINIO_SECRET_KEY: "AICOEEXAMPLESECRETKEY"
+  MINIO_HOST: "http://minio:9000"
+  TESTBUCKET: testdata
+
+before_script:
+  - echo -n $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin $CI_REGISTRY
+  - apk add --update make yarn git curl python jq
+  - wget -P /tmp https://github.com/openshift/source-to-image/releases/download/v1.1.14/source-to-image-v1.1.14-874754de-linux-amd64.tar.gz
+  - tar xvf /tmp/source-to-image-v1.1.14-874754de-linux-amd64.tar.gz -C /usr/bin
+  - wget -P /usr/bin https://dl.min.io/client/mc/release/linux-amd64/mc
+  - chmod +x /usr/bin/mc
+
+stages:
+  - build_images
+  - test_models
+
+include:
+  - local: /regression_predict/gitlab-ci.yml
+  - local: /regression_train/gitlab-ci.yml
+  - local: /fraud_detection/gitlab-ci.yml
+  - local: /association_rule_learning/gitlab-ci.yml
+  - local: /correlation_analysis/gitlab-ci.yml
+  - local: /flakes_predict/gitlab-ci.yml
+  - local: /flakes_train/gitlab-ci.yml
+  - local: /matrix_factorization/gitlab-ci.yml
+  - local: /topic_model/gitlab-ci.yml
+  - local: /anomaly_detection_predict/gitlab-ci.yml
+  - local: /anomaly_detection_train/gitlab-ci.yml
+  - local: /duplicate_bug_train/gitlab-ci.yml

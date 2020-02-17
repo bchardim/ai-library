@@ -1,0 +1,54 @@
+{
+    "apiVersion": "machinelearning.seldon.io/v1alpha2",
+    "kind": "SeldonDeployment",
+    "metadata": {
+        "labels": {
+            "app": "seldon"
+        },
+        "name": "m-fruitcl"
+    },
+    "spec": {
+        "annotations": {
+            "project_name": "p-fruitcl",
+            "deployment_version": "0.1"
+        },
+        "name": "fruitcl",
+        "oauth_key": "fruitcl_key",
+        "oauth_secret": "fruitcl_secret",
+        "predictors": [
+            {
+                "componentSpecs": [{
+                    "spec": {
+                        "containers": [
+                            {
+                                "image": "quay.io/bchardim/fruitcl",
+                                "imagePullPolicy": "Always",
+                                "name": "c-fruitcl",
+                                "resources": {
+                                    "requests": {
+                                        "memory": "10Mi",
+                                        "cpu": "100m"
+                                    }
+                                }
+                            }
+                        ],
+                        "terminationGracePeriodSeconds": 20
+                    }
+                }],
+                "graph": {
+                    "children": [],
+                    "name": "c-fruitcl",
+                    "endpoint": {
+                        "type" : "REST"
+                    },
+                    "type": "MODEL"
+                },
+                "name": "predictor",
+                "replicas": 1,
+                "annotations": {
+                "predictor_version" : "0.1"
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,4 @@
+# Ansible runtime files
+*.retry
+ansible.log
+sync_ai.sh

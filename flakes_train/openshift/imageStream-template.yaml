@@ -1,0 +1,12 @@
+---
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  labels:
+    app: ai-library
+    component: flakes-train
+  name: ai-library-flakes-train
+spec:
+  name: latest
+  lookupPolicy:
+    local: true

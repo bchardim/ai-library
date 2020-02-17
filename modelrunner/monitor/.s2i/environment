@@ -1,0 +1,3 @@
+PYTHONWARNINGS=ignore:Unverified HTTPS request
+APP_FILE=monitor.py
+UPGRADE_PIP_TO_LATEST=true

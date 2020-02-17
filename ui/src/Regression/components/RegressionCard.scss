@@ -1,0 +1,63 @@
+.regression-wizard {
+  .wizard-pf-contents {
+    height: calc(100% - 72px);
+  }
+
+  .wizard-pane-title {
+    margin-top: 0;
+    margin-bottom: 2rem;
+  }
+
+  .regression-wizard-contents {
+    padding-bottom: 5rem;
+
+    .regression-info-section {
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+    }
+
+    .lead-description {
+      min-height: 4rem;
+      margin-bottom: 3rem;
+    }
+
+    &.regression-info {
+      .info-graph-container {
+        height: 300px; //px for plotly
+      }
+    }
+
+    &.regression-demo {
+      form {
+        margin-bottom: 3rem;
+
+        .health-result-group {
+          margin-top: 2rem;
+        }
+
+        .health-result {
+          min-height: 20px;
+        }
+      }
+
+      .health-index-icon {
+        color: rgb(49,255,11);
+      }
+
+      .demo-graph-container {
+        height: 420px; //px for plotly
+      }
+
+      .regression-demo-status {
+        margin-top: 46px;
+        border-color: #1686CA;
+        color: #1686CA;
+        background-color: rgba(22, 134, 202, 0.1);
+
+        .pficon-info {
+          color: #1686CA;
+        }
+      }
+    }
+  }
+}

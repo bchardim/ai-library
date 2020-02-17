@@ -1,0 +1,62 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: anomalydetectionpredict
+  labels:
+    jobType: prediction
+spec:
+  entrypoint: predict-anomaly-detection
+  volumes:
+    - name: workdir
+      emptyDir: {}
+  templates:
+    - name: predictanomalydetection
+      container:
+        env:
+          - name: APP_FILE
+            value: anomaly_detection_prediction.py
+          - name: INPUT_DIR
+            value: /opt/app-root/src/data
+          - name: OUTPUT_DIR
+            value: /mnt/output
+        image: quay.io/akarve/argo-anomaly-detection-predict-nos3
+        imagePullPolicy: Always
+        volumeMounts:
+          - name: workdir
+            mountPath: /mnt/output
+      inputs:
+        artifacts:
+          - name: anomalydetectionpredictdata
+            path: /opt/app-root/src/data
+            mode: 0755
+            s3:
+              key: "{{workflow.parameters.input-data-key}}"        # <location of tar.gz data>
+              endpoint: "{{workflow.parameters.endpoint}}"         # <your s3 endpoint>
+              bucket: "{{workflow.parameters.bucket}}"             # <your s3 bucket>
+              accessKeySecret:
+                name: "{{workflow.parameters.credentials}}"        # <your s3 credentials secret>
+                key: accesskey
+              secretKeySecret:
+                name: "{{workflow.parameters.credentials}}"        # <your s3 credentials secret>
+                key: secretkey
+      outputs:
+        artifacts:
+          - name: anomalydetectionmodel
+            path: /mnt/output
+            archive:
+              none: {}
+            s3:
+              key: "{{workflow.parameters.result-key}}-{{workflow.uid}}.tgz"  # <location of result (model) on S3 storage
+              endpoint: "{{workflow.parameters.endpoint}}"                    # <your s3 endpoint>
+              bucket: "{{workflow.parameters.bucket}}"                        # <your s3 bucket>
+              accessKeySecret:
+                name: "{{workflow.parameters.credentials}}"                   # <your s3 credentials secret>
+                key: accesskey
+              secretKeySecret:
+                name: "{{workflow.parameters.credentials}}"                   # <your s3 credentials secret>
+                key: secretkey
+    - name: predict-anomaly-detection
+      dag:
+        tasks:
+          - name: Anomaly-Detection-Predict
+            template: predictanomalydetection

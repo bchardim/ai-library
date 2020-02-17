@@ -1,0 +1,51 @@
+build_association_rule_learning:
+  stage: build_images
+  variables:
+    IMAGETAG: "$CI_REGISTRY/$CI_PROJECT_PATH/ai-library-association-rule-learning:${CI_COMMIT_SHORT_SHA}"
+  only:
+    changes:
+      - Makefile
+      - .gitlab-ci.yml
+      - association_rule_learning/**/*
+      - storage/**/*
+    refs:
+      - master
+      - merge_requests
+      - tags
+      - branches
+  services:
+    - docker:dind
+  script:
+    - echo `env | sort`
+    - cd association_rule_learning
+    - make build
+    - docker push $IMAGETAG
+
+test_association_rule_learning:
+  stage: test_models
+  variables:
+    IMAGETAG: "$CI_REGISTRY/$CI_PROJECT_PATH/ai-library-association-rule-learning:${CI_COMMIT_SHORT_SHA}"
+  only:
+    changes:
+      - Makefile
+      - .gitlab-ci.yml
+      - association_rule_learning/**/*
+      - storage/**/*
+    refs:
+      - master
+      - merge_requests
+      - tags
+      - branches
+  script:
+    - mc config host add minio ${MINIO_HOST} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
+    - mc mb minio/testdata
+    - git clone https://gitlab.com/opendatahub/sample-models.git
+    - cd sample-models
+    - mc cp ./association_rule_learning/data.csv minio/${TESTBUCKET}/association_rule_learning/
+    - MINIO_IP=$(cat /etc/hosts | awk '{if ($2 == "minio") print $1;}')
+    - PRED_CID=$(docker run -d -p 5000:5000 --add-host="minio:$MINIO_IP" -e S3ENDPOINTURL=${MINIO_HOST} -e S3OBJECTSTORELOCATION=${TESTBUCKET} -e S3ACCESSKEY=${MINIO_ACCESS_KEY} -e S3SECRETKEY=${MINIO_SECRET_KEY} ${IMAGETAG})
+    - sleep 30s
+    - echo `docker inspect $PRED_CID` | jq .[0].State
+    - OUTPUT=`curl http://docker:5000/predict -d '{"strData":"data=association_rule_learning/data.csv"}' -H "Content-Type:application/json"`
+    - echo $OUTPUT | python -m json.tool
+

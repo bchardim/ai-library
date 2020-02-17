@@ -1,0 +1,49 @@
+build_duplicate_bug_train:
+  stage: build_images
+  variables:
+    IMAGETAG: "$CI_REGISTRY/$CI_PROJECT_PATH/ai-library-duplicate-bug-train:${CI_COMMIT_SHORT_SHA}"
+  only:
+    changes:
+      - Makefile
+      - .gitlab-ci.yml
+      - duplicate_bug_train/**/*
+    refs:
+      - master
+      - merge_requests
+      - tags
+      - branches
+  services:
+    - docker:dind
+  script:
+    - echo `env | sort`
+    - cd duplicate_bug_train
+    - make build
+    - docker push $IMAGETAG
+
+test_duplicate_bug_train:
+  stage: test_models
+  variables:
+    IMAGETAG: "$CI_REGISTRY/$CI_PROJECT_PATH/ai-library-duplicate-bug-train:${CI_COMMIT_SHORT_SHA}"
+    SHARED_PATH: /builds/shared/$CI_PROJECT_PATH/shared
+  only:
+    changes:
+      - Makefile
+      - .gitlab-ci.yml
+      - duplicate_bug_train/**/*
+    refs:
+      - master
+      - merge_requests
+      - tags
+      - branches
+  script:
+    - mkdir -p ${SHARED_PATH}/output
+    - git clone https://gitlab.com/opendatahub/sample-models.git ${SHARED_PATH}/sample
+    - chmod -R 777 ${SHARED_PATH}
+    - PRED_CID=$(docker run -d -v ${SHARED_PATH}/sample/duplicate_bug_detection/cinder_bugs:/opt/app-root/src/data -v ${SHARED_PATH}/output:/mnt/vol ${IMAGETAG})
+    - sleep 60s
+    - echo `docker inspect $PRED_CID` | jq .[0].State
+    - echo `docker logs $PRED_CID`
+    - echo `ls -l ${SHARED_PATH}`
+    - echo `ls -l ${SHARED_PATH}/output`
+    - ls -l ${SHARED_PATH}/output | grep ".json" || exit 1
+    

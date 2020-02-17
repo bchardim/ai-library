@@ -1,0 +1,6 @@
+---
+- name: File to activate role deploy models
+  hosts: localhost
+
+  roles:
+    - deploy_models
